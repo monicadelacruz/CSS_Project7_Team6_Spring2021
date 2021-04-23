@@ -20,7 +20,7 @@ pacman::p_load(# Tidyverse packages including dplyr and ggplot2
 set.seed(1)
 
 # load data
-medicaid_expansion <- read_csv('data/medicaid_expansion.csv')
+medicaid_expansion <- read_csv('medicaid_expansion.csv')
 ```
 
 # Introduction
@@ -55,7 +55,85 @@ Create plots and provide 1-2 sentence analyses to answer the following questions
 - Which states were home to most uninsured Americans prior to 2014? How about in 2021? **Note**: 2010 state population is provided as a variable to answer this question. In an actual study you would likely use population estimates over time, but to simplify you can assume these numbers stay about the same.
 
 ```{r}
-# highest and lowest uninsured rates
+#explore data
+head(medicaid_expansion)
+summary(medicaid_expansion)
+
+# highest and lowest uninsured rates prior to 2014
+
+#create new variable for uninsured Americans per state
+medicaid_expansion$pop_uninsured <- medicaid_expansion$uninsured_rate * medicaid_expansion$population
+
+#bar plots for 2008-2013
+#2008
+bar_2008 <- ggplot(medicaid_expansion %>% filter(year == '2008'),
+                   aes(State, uninsured_rate)) + geom_col() +
+  ggtitle('Uninsured Rate Per State in 2008') +
+  xlab('State') +
+  ylab('Uninsured rate') +
+  theme(axis.text.x = element_text(
+    size = 8, angle = 90))
+bar_2008
+
+#2009
+
+bar_2009 <- ggplot(medicaid_expansion %>% filter(year == '2009'),
+                   aes(State, uninsured_rate)) +
+  geom_col() +
+  ggtitle('Uninsured Rate Per State in 2009') +
+  xlab('State') +
+  ylab('Uninsured rate') +
+  theme(axis.text.x = element_text(
+    size = 8, angle = 90))
+bar_2009
+
+#2010
+bar_2010 <- ggplot(medicaid_expansion %>% filter(year == '2010'),
+                   aes(State, uninsured_rate)) +
+  geom_col() +
+  ggtitle('Uninsured Rate Per State in 2010') +
+  xlab('State') +
+  ylab('Uninsured rate') +
+  theme(axis.text.x = element_text(
+    size = 8, angle = 90))
+bar_2010
+
+#2011
+bar_2011 <- ggplot(medicaid_expansion %>% filter(year == '2011'),
+                   aes(State, uninsured_rate)) +
+  geom_col() +
+  ggtitle('Uninsured Rate Per State in 2011') +
+  xlab('State') +
+  ylab('Uninsured rate') +
+  theme(axis.text.x = element_text(
+    size = 8, angle = 90))
+bar_2011
+
+#2012
+bar_2012 <- ggplot(medicaid_expansion %>% filter(year == '2012'),
+                   aes(State, uninsured_rate)) +
+  geom_col() +
+  ggtitle('Uninsured Rate Per State in 2012') +
+  xlab('State') +
+  ylab('Uninsured rate') +
+  theme(axis.text.x = element_text(
+    size = 8, angle = 90))
+bar_2012
+
+#2013
+bar_2013 <- ggplot(medicaid_expansion %>% filter(year == '2013'),
+                   aes(State, uninsured_rate)) +
+  geom_col() +
+  ggtitle('Uninsured Rate Per State in 2013') +
+  xlab('State') +
+  ylab('Uninsured rate') +
+  theme(axis.text.x = element_text(
+    size = 8, angle = 90))
+bar_2013
+
+
+
+
 ```
 
 ```{r}
