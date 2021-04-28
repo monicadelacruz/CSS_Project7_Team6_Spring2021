@@ -1,6 +1,6 @@
 ---
 title: "Project 7: Difference-in-Differences and Synthetic Control"
-author: Jose Aveldanes, Monica De La Cruz, Lawrence Liu
+authors: Jose Aveldanes, Monica De La Cruz, Lawrence Liu
 output: html_document
 ---
 
@@ -134,13 +134,14 @@ bar_2013
 
 
 ```
-Prior to 2014, 
+Prior to 2014, Massachusetts consisently had that lowest uninsured rate of all 
+50 states (2008-2013), which is to be expected given that Massachusetts passed
+a universal healthcare law in 2006. From 2008-2009, Utah had the highest 
+uninsured rate, but that shifted in 2010-2013, with Texas having the highest 
+uninsured rate. 
 
 ```{r}
 # most uninsured Americans
-
-pop_uninsured_2008 <- summary(medicaid_expansion %>% filter(year=='2008'))
-pop_uninsured_2008
 
 minmax <- medicaid_expansion %>% group_by(year) %>% 
   summarize(min = min(pop_uninsured), 
@@ -149,6 +150,13 @@ minmax <- medicaid_expansion %>% group_by(year) %>%
             maxState = State[which.max(pop_uninsured)])
 View(minmax)
 ```
+
+California, the most populous state, had the most uninsured Americans from 
+2008-2013 (which makes sense given that California has the largest population
+among all 50 states). After 2014 and the Medicaid Expansion, Texas replaced 
+California as the state with the most uninsured Americans. Wyoming had the least
+uninsured Americans from 2008-2009, but was replaced by Vermont from 2010
+through 2010. 
 
 # Difference-in-Differences Estimation
 
@@ -180,7 +188,12 @@ medicaid_expansion %>%
   xlab('Year') +
   ylab('Population Uninsured')
 ```
-- Estimates a difference-in-differences estimate of the effect of the Medicaid expansion on the uninsured share of the population. You may follow the lab example where we estimate the differences in one pre-treatment and one post-treatment period, or take an average of the pre-treatment and post-treatment outcomes
+The parallel trends plot for the population uninsured over time between Idaho
+and Nevada seems to meet the assumption that the trends between the two states
+were fairly parallel prior to the treatment year, showing roughly similar slopes
+between 2009 to 2013. 
+
+- Estimate a difference-in-differences estimate of the effect of the Medicaid expansion on the uninsured share of the population. You may follow the lab example where we estimate the differences in one pre-treatment and one post-treatment period, or take an average of the pre-treatment and post-treatment outcomes
 
 ```{r}
 # Difference-in-Differences estimation, uninsured population
@@ -252,10 +265,12 @@ treatment effect of -0.03, or a 3% decrease in the rate of uninsured Americans.
 ## Discussion Questions
 
 - Card/Krueger's original piece utilized the fact that towns on either side of the Delaware river are likely to be quite similar to one another in terms of demographics, economics, etc. Why is that intuition harder to replicate with this data?
-- **Answer**:
+- **Answer**: That intiuition is harder to apply to this data given that the 
+units of interest were states, which are more difficult to compare to each other
+because of differences in demographics, politics, economics, etc. 
 
 - What are the strengths and weaknesses of using the parallel trends assumption in difference-in-differences estimates?
-- **Answer**:
+- **Answer**: The strengths of using the parallel trends assumption 
 
 
 # Synthetic Control
