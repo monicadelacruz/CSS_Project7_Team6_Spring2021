@@ -1,5 +1,6 @@
 ---
 title: "Project 7: Difference-in-Differences and Synthetic Control"
+author: Jose Aveldanes, Monica De La Cruz, Lawrence Liu
 output: html_document
 ---
 
@@ -269,18 +270,82 @@ Do the following:
 
 ```{r}
 # non-augmented synthetic control
+
+#add in treated indicator to dataframe for Louisiana only
+syn_la_df <- medicaid_expansion %>% 
+  mutate(adoption_year = as.numeric(as.character(as.Date(Date_Adopted, format = "%Y/%m/%d"), 
+                                                 format = "%Y"))) %>% 
+  mutate(treated = ifelse(State == "Louisiana" & adoption_year < year, 1, 0))
+
+syn_louisiana <- augsynth(uninsured_rate ~ treated, State, year, syn_la_df,
+                progfunc = "None", scm = T)
+
+summary(syn_louisiana)
+
+plot(syn_louisiana)
+
+
+
+```
+
+```{r}
+#plotting of differences, still in progress
 ```
 
 - Re-run the same analysis but this time use an augmentation (default choices are Ridge, Matrix Completion, and GSynth). Create the same plot and report the average ATT and L2 imbalance.
 
 ```{r}
 # augmented synthetic control
+ridge_syn_la <- augsynth(uninsured_rate ~ treated, State, year, syn_la_df,
+                progfunc = "ridge", scm = T)
+
+summary(ridge_syn_la)
+```
+
+```{r}
+#plotting of differences, still in progress
 ```
 
 - Plot barplots to visualize the weights of the donors.
 
 ```{r}
 # barplots of weights
+
+##non-augmented synthetic control
+# Convert weights to dataframe
+data.frame(syn_louisiana$weights) %>%
+  # change index to a column
+  tibble::rownames_to_column('State') %>%
+  ggplot() +
+  # stat = identity to take the literal value instead of a count for geom_bar()
+  geom_bar(aes(x = State, 
+               y = syn_louisiana.weights),
+           stat = 'identity') +
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text(),
+        axis.text.x = element_text(angle = 90)) +
+  ggtitle('Synthetic Control Weights') +
+  xlab('State') +
+  ylab('Weight') 
+
+
+##augmented synthetic control
+# Convert weights to dataframe
+data.frame(ridge_syn_la$weights) %>%
+  # change index to a column
+  tibble::rownames_to_column('State') %>%
+  ggplot() +
+  # stat = identity to take the literal value instead of a count for geom_bar()
+  geom_bar(aes(x = State, 
+               y = ridge_syn_la.weights),
+           stat = 'identity') +
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text(),
+        axis.text.x = element_text(angle = 90)) +
+  ggtitle('Synthetic Control Weights') +
+  xlab('State') +
+  ylab('Weight') 
+
 ```
 
 **HINT**: Is there any preprocessing you need to do before you allow the program to automatically find weights for donor states?
