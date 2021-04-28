@@ -132,14 +132,22 @@ bar_2013 <- ggplot(medicaid_expansion %>% filter(year == '2013'),
 bar_2013
 
 
-
-
 ```
+Prior to 2014, 
 
 ```{r}
 # most uninsured Americans
-```
 
+pop_uninsured_2008 <- summary(medicaid_expansion %>% filter(year=='2008'))
+pop_uninsured_2008
+
+minmax <- medicaid_expansion %>% group_by(year) %>% 
+  summarize(min = min(pop_uninsured), 
+            minState = State[which.min(pop_uninsured)],
+            max =max(pop_uninsured), 
+            maxState = State[which.max(pop_uninsured)])
+View(minmax)
+```
 
 # Difference-in-Differences Estimation
 
@@ -152,14 +160,93 @@ Do the following:
 
 ```{r}
 # Parallel Trends plot
-```
+#tried Colorado-Utah, Arizona-Utah, Idaho-Washington, Pennsylvania-New York,
+# Virginia-Kentucky, and settled on Idaho-Nevada
 
+medicaid_expansion %>%
+  filter(State %in% c("Idaho","Nevada")) %>%
+  ggplot() + 
+  geom_point(aes(x = year, 
+                 y = pop_uninsured, 
+                 color = State)) +
+  geom_line(aes(x = year, 
+                y = pop_uninsured, 
+                color = State)) +
+  geom_vline(aes(xintercept = 2014)) +
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text()) +
+  ggtitle('Uninsured population from 2008 to 2020') +
+  xlab('Year') +
+  ylab('Population Uninsured')
+```
 - Estimates a difference-in-differences estimate of the effect of the Medicaid expansion on the uninsured share of the population. You may follow the lab example where we estimate the differences in one pre-treatment and one post-treatment period, or take an average of the pre-treatment and post-treatment outcomes
 
 ```{r}
-# Difference-in-Differences estimation
-```
+# Difference-in-Differences estimation, uninsured population
 
+# Nevada - Idaho
+data_dd <- medicaid_expansion %>%
+  filter(State %in% c("Nevada","Idaho")) %>%
+  filter(year >= 2013 & year<= 2015) 
+
+# pre-treatment difference, unuinsured pop
+
+pre_diff_pop <- data_dd %>%
+  filter(year == 2013) %>%
+  select(State, 
+         pop_uninsured) %>%
+  spread(State, 
+         pop_uninsured) %>%
+  summarise(Nevada - Idaho)
+  
+# post-treatment difference, uninsured pop
+
+post_diff_pop <- data_dd %>%
+  filter(year == 2015) %>%
+  select(State, 
+         pop_uninsured) %>%
+  spread(State, 
+         pop_uninsured) %>%
+  summarise(Nevada - Idaho)
+
+# diff-in-diffs, uninsured pop
+
+diff_in_diffs_pop <- post_diff_pop - pre_diff_pop
+diff_in_diffs_pop
+
+
+#Diff-in-diff, uninsured rate
+
+#pre-treatment difference, unuinsured rate
+pre_diff_rate <- data_dd %>%
+  filter(year == 2013) %>%
+  select(State, 
+         uninsured_rate) %>%
+  spread(State, 
+         uninsured_rate) %>%
+  summarise(Nevada - Idaho)
+  
+# post-treatment difference, uninsured rate
+
+post_diff_rate <- data_dd %>%
+  filter(year == 2015) %>%
+  select(State, 
+         uninsured_rate) %>%
+  spread(State, 
+         uninsured_rate) %>%
+  summarise(Nevada - Idaho)
+
+# diff-in-diffs, uninsured rate
+
+diff_in_diffs_rate <- post_diff_rate - pre_diff_rate
+diff_in_diffs_rate
+
+```
+Based on the differences-in-differences estimation for the uninsured population, 
+the expansion of Medicaid had a treatment effect of -154374.4, or decreased the 
+population of uninsured Americans by 154,374 people. Looking at the difference-
+in-differences estimation for the uninsured rate, Medicaid expansion had a
+treatment effect of -0.03, or a 3% decrease in the rate of uninsured Americans.
 
 ## Discussion Questions
 
