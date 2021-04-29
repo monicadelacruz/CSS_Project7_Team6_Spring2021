@@ -382,14 +382,45 @@ Do the following:
 
 - Estimate a multisynth model that treats each state individually. Choose a fraction of states that you can fit on a plot and examine their treatment effects.
 
+
+So we need a few thingfs for a Staggered Adoption Synthetic Control: 
+
+- `year`, `State`: The state and year of the measurement
+- `Date_Adopted`: The year that the state adopted medicaid expansion 
+- `uninsured_rate`: rate of insured folks per state
+- `treatsm`: whether or not the state got the treatment 
+
 ```{r}
-# multisynth model states
+medicaid_expclean <- medicaid_expansion %>%
+  mutate(dateadopt =as.numeric(as.character(as.Date(Date_Adopted,format="%Y/%m/%d"),format = "%Y"))) %>%
+  mutate(treatsm = ifelse(State !="" & dateadopt >= year, 1, 0)) %>%
+  mutate(dateadopt = ifelse(is.na(dateadopt), 0, dateadopt))
+  
+#was it treated that year onward 
+
+#We're ready to start estimating a model! To do this, we use the #`multisynth()` function that has the following signature:
+#mutltisynth(outcome ~ treatment, unit, time, nu, data,  n_leads)
+
+# with a choice of nu
+mpool_msyn <- multisynth(uninsured_rate ~ treatsm, State, year,
+                        nu = 0.5, medicaid_expclean, n_leads = 10)
+# with default nu
+mpool_msyn <- multisynth(uninsured_rate ~ treatsm, State, year,
+                        medicaid_expclean, n_leads = 10)
+
+print(mpool_msyn$nu)
+
+mpool_msyn
+
 ```
 
 - Estimate a multisynth model using time cohorts. For the purpose of this exercise, you can simplify the treatment time so that states that adopted Medicaid expansion within the same year (i.e. all states that adopted epxansion in 2016) count for the same cohort. Plot the treatment effects for these time cohorts.
 
 ```{r}
 # multisynth model time cohorts
+
+
+
 ```
 
 ## Discussion Questions
