@@ -270,7 +270,14 @@ units of interest were states, which are more difficult to compare to each other
 because of differences in demographics, politics, economics, etc. 
 
 - What are the strengths and weaknesses of using the parallel trends assumption in difference-in-differences estimates?
-- **Answer**: The strengths of using the parallel trends assumption 
+- **Answer**: The strengths of using the parallel trends assumption is that it
+provides a quick way to visually ascertain that the trends over a long period 
+of time between treatment and control groups prior to the treatment are
+generally constant. The weaknesses are that there is no way to statistically 
+test this assumption and that it ignores possible confounding differences
+between treatment and control groups (e.g., assuming that the treatment and 
+control groups are similar enough on all possible covariates of interest and 
+therefore their outcome trends are comparable).
 
 
 # Synthetic Control
