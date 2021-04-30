@@ -533,5 +533,16 @@ mpool_msyn_tc_summ$att %>%
 - Why are DiD and  synthetic control estimates well suited to studies of aggregated units like cities, states, countries, etc?
 - **Answer**:
 
+First and foremost--many questions in social science are centered around aggregated units (e.g., cities, states) and thus, the panel data required to do DiD is readily available. In addition to data being readily available, it is also the case that many policy interventions concomitantly occur at the aggregate unit level. 
+
+Synthetic control approaches are data-driven and thus, reduce the amount of discretion researchers have in making subjective decisions about control and treatment groups.Thus, synthetic control approaches make decisions around treatment and control groups more transparent using quantifiable (i.e. observable) characteristics to make treatment and control groups more comparable. 
+
 - What role does selection into treatment play in DiD/synthetic control versus regression discontinuity? When would we want to use either method?
 - **Answer**:
+
+There are two main issues in DiD/synthetic control: issue of selection across group and selection across time. For example, groups might change in composition over time, making the observed difference less valid in terms of a true calculation of differences between treatment and control groups. DiD/Synthetic control relies on the fact that the groups under study do not change systematically. The other issue of selection bias stems from unobservable characteristics that affect selection into treatment (e.g., entering into a program vs. not). 
+
+
+What is advantageous about Regression Discontinuity in terms of selection bias is that the outcome of interest is observed given a specified cutoff, thus it follows logically that those above and beyond the cutoff are not dissimilar systematically. It is quite unlikely, for example, that those above and beyond an SAT threshold for a scholarship are systematically different from each other. The main issue that RD suffers from is external validity while being close to the ideal conditions of an experiment. Thus, it's hard to generalize from an RD design but is advantageous in terms of internal validity. 
+
+RD is useful when comparing groups that differ only in treatment (or when there is scientific and good rationale for assuming so). DiD is about comparing groups who not only differ in treatment but differ in other ways with the assumption that difference in outcomes is constant under the period of study. 
