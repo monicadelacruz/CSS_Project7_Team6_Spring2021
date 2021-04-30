@@ -462,11 +462,9 @@ So we need a few thingfs for a Staggered Adoption Synthetic Control:
 
 ```{r}
 medicaid_expclean <- medicaid_expansion %>%
-  mutate(dateadopt =as.numeric(as.character(as.Date(Date_Adopted,format="%Y/%m/%d"),format = "%Y"))) %>%
-  mutate(treatsm = 1 * (year >= dateadopt))
-  #mutate(treatsm = ifelse(State !="" & dateadopt >= year, 1, 0)) %>%
-  #mutate(dateadopt = ifelse(is.na(dateadopt), 0, dateadopt))
-  
+   mutate(dateadopt =as.numeric(as.character(as.Date(Date_Adopted,format="%Y/%m/%d"),format = "%Y"))) %>%
+   mutate(treatsm = 1 * (year >= dateadopt))
+
 #was it treated that year onward 
 
 #We're ready to start estimating a model! To do this, we use the #`multisynth()` function that has the following signature:
@@ -485,13 +483,41 @@ mpool_msyn
 
 ```
 
+```{r}
+mpool_msyn_summ <- summary(mpool_msyn)
+```
+
+
 - Estimate a multisynth model using time cohorts. For the purpose of this exercise, you can simplify the treatment time so that states that adopted Medicaid expansion within the same year (i.e. all states that adopted epxansion in 2016) count for the same cohort. Plot the treatment effects for these time cohorts.
 
 ```{r}
 # multisynth model time cohorts
+mpool_msyn_tc <- multisynth(uninsured_rate ~ treatsm, State, year,
+                            medicaid_expclean, n_leads = 10, time_cohort = TRUE)
+
+mpool_msyn_tc_summ <- summary(mpool_msyn_tc)
+
+mpool_msyn_tc_summ
+
+```
 
 
 
+#Now let's plot the Time Cohorts
+
+```{r}
+mpool_msyn_tc_summ$att %>%
+  ggplot(aes(x = Time, y = Estimate, color = Level)) +
+  geom_point() +
+  geom_line() +
+  geom_vline(xintercept = 0) +
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text(),
+        legend.position = 'None') +
+  ggtitle('Multi-Synthetic Controls for Medicaid Expansion') +
+  xlab('Time') +
+  ylab('Uninsured Rate Per State') +
+  facet_wrap(~Level)
 ```
 
 ## Discussion Questions
