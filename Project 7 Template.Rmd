@@ -286,8 +286,9 @@ Do the following:
 ```{r}
 # non-augmented synthetic control
 
-#add in treated indicator to dataframe for Louisiana only
+#remove other states that adopted expansion, add in treated indicator for Louisiana
 syn_la_df <- medicaid_expansion %>% 
+  filter(is.na(Date_Adopted) == 1 | State == "Louisiana") %>% 
   mutate(adoption_year = as.numeric(as.character(as.Date(Date_Adopted, format = "%Y/%m/%d"), 
                                                  format = "%Y"))) %>% 
   mutate(treated = ifelse(State == "Louisiana" & adoption_year < year, 1, 0))
@@ -298,14 +299,43 @@ syn_louisiana <- augsynth(uninsured_rate ~ treated, State, year, syn_la_df,
 summary(syn_louisiana)
 
 plot(syn_louisiana)
-
-
-
 ```
+The average ATT estimate is -0.029. The L2 Imbalance is 0.008.
 
 ```{r}
-#plotting of differences, still in progress
+syn_sum <- summary(syn_louisiana)
+
+la_synla <- syn_la_df %>%
+  filter(State == "Louisiana") %>%
+  bind_cols(difference = syn_sum$att$Estimate) %>% #Estimate = Actual Uninsured Rate - Synthetic
+  mutate(synthetic_louisiana = uninsured_rate - difference)
+
+# Plot
+
+la_synla %>%
+  ggplot() +
+  geom_point(aes(x = year, 
+                 y = uninsured_rate, 
+                 color = 'Louisiana')) +
+  geom_line(aes(x = year, 
+                y = uninsured_rate, 
+                color = 'Louisiana')) +
+  geom_point(aes(x = year, 
+                 y = synthetic_louisiana, 
+                 color = 'Synthetic Louisiana')) +
+  geom_line(aes(x = year, 
+                y = synthetic_louisiana, 
+                color = 'Synthetic Louisiana')) +
+  scale_color_manual(values = c('Louisiana' = 'red', 'Synthetic Louisiana' = 'blue')) +
+  geom_vline(aes(xintercept = 2016)) +
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text()) +
+  ggtitle('Louisiana and Synthetic Louisiana') +
+  xlab('Year') +
+  ylab('Uninsured Rate')
 ```
+The fit before 2016 looks pretty good, though we are a bit concerned that the pre-treatment fit starts coming apart right before the treatment. After 2016, we see that the uninsured rate for Louisiana was lower than it otherwise would have been without the Medicaid expansion.
+
 
 - Re-run the same analysis but this time use an augmentation (default choices are Ridge, Matrix Completion, and GSynth). Create the same plot and report the average ATT and L2 imbalance.
 
@@ -316,9 +346,39 @@ ridge_syn_la <- augsynth(uninsured_rate ~ treated, State, year, syn_la_df,
 
 summary(ridge_syn_la)
 ```
+The Average ATT estimate is again -0.029. And the L2 Imbalane is again 0.008.
 
 ```{r}
-#plotting of differences, still in progress
+ridge_syn_sum <- summary(ridge_syn_la)
+
+ridge_la_synla <- syn_la_df %>%
+  filter(State == "Louisiana") %>%
+  bind_cols(difference = ridge_syn_sum$att$Estimate) %>% #Estimate = Actual Uninsured Rate - Synthetic
+  mutate(synthetic_louisiana = uninsured_rate - difference)
+
+# Plot
+
+ridge_la_synla %>%
+  ggplot() +
+  geom_point(aes(x = year, 
+                 y = uninsured_rate, 
+                 color = 'Louisiana')) +
+  geom_line(aes(x = year, 
+                y = uninsured_rate, 
+                color = 'Louisiana')) +
+  geom_point(aes(x = year, 
+                 y = synthetic_louisiana, 
+                 color = 'Synthetic Louisiana')) +
+  geom_line(aes(x = year, 
+                y = synthetic_louisiana, 
+                color = 'Synthetic Louisiana')) +
+  scale_color_manual(values = c('Louisiana' = 'red', 'Synthetic Louisiana' = 'blue')) +
+  geom_vline(aes(xintercept = 2016)) +
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text()) +
+  ggtitle('Louisiana and Synthetic Louisiana') +
+  xlab('Year') +
+  ylab('Uninsured Rate')
 ```
 
 - Plot barplots to visualize the weights of the donors.
@@ -344,7 +404,7 @@ data.frame(syn_louisiana$weights) %>%
   ylab('Weight') 
 
 
-##augmented synthetic control
+##ridge augmented synthetic control
 # Convert weights to dataframe
 data.frame(ridge_syn_la$weights) %>%
   # change index to a column
@@ -357,22 +417,24 @@ data.frame(ridge_syn_la$weights) %>%
   theme_fivethirtyeight() +
   theme(axis.title = element_text(),
         axis.text.x = element_text(angle = 90)) +
-  ggtitle('Synthetic Control Weights') +
+  ggtitle('Augmented Synthetic Control Weights') +
   xlab('State') +
   ylab('Weight') 
 
 ```
 
-**HINT**: Is there any preprocessing you need to do before you allow the program to automatically find weights for donor states?
+It looks like Florida was weighted quite heavily in the synthetic control, followed by South Carolina and South Dakota. 
+
+**HINT**: Is there any preprocessing you need to do before you allow the program to automatically find weights for donor states? Yes! We need to remove states that adopted the Medicaid expansion so that they will not be included as potential donor states to the synthetic control.
 
 ## Discussion Questions
 
 
 - What are the advantages and disadvantages of synthetic control compared to difference-in-differences estimators?
-- **Answer**: 
+- **Answer**: Instead of needing to find one state that can serve as an appropriate control group, we can rely on a set of states and (importantly) WEIGHT them based on their similarities to the state of interest along observable covariates. Put simply, it allows us to create a more appropriate control group. 
 
 - One of the benefits of synthetic control is that the weights are bounded between [0,1] and the weights must sum to 1. Augmentation might relax this assumption by allowing for negative weights. Does this create an interpretation problem, and how should we balance this consideration against the improvements augmentation offers in terms of imbalance in the pre-treatment period?
-- **Answer**:
+- **Answer**: Negative weights raise concerns about possibly unchecked extrapolation bias, because it uses extrapolation outside of the convex hull (N.B. I'm not actually sure that that means!) to generate the weights. Interpretation is also difficult, since it's not clear what it would mean for a state's data to negatively contribute to the construction of a synthetic control. To the extent we are not overly concerned about extrapolation outside the support of the data in traditional regression approaches and we are not that concerned about how different states were weighted in creating the synthetic control, we might be willing to allow for negative weights, especially if it noticeably enhances pre-treatment balance.
 
 # Staggered Adoption Synthetic Control
 
