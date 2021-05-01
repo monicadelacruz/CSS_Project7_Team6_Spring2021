@@ -488,6 +488,36 @@ mpool_msyn_summ <- summary(mpool_msyn)
 ```
 
 
+
+```{r}
+mpool_msyn_summ$att %>%
+  ggplot(aes(x = Time, y = Estimate, color = Level)) +
+  geom_point() +
+  geom_line() +
+  geom_vline(xintercept = 0) +
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text(),
+        legend.position = "bottom") +
+  ggtitle('Synthetic Controls for Medicaid Expansion') +
+  xlab('Time') +
+  ylab('Uninsured Rate')
+```
+
+```{r}
+mpool_msyn_summ$att %>%
+  ggplot(aes(x = Time, y = Estimate, color = Level)) +
+  geom_point() +
+  geom_line() +
+  geom_vline(xintercept = 0) +
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text(),
+        legend.position = 'None') +
+  ggtitle('Synthetic Controls for Medicaid Expansion') +
+  xlab('Time') +
+  ylab('Uninsured Rate') +
+  facet_wrap(~Level)
+```
+
 - Estimate a multisynth model using time cohorts. For the purpose of this exercise, you can simplify the treatment time so that states that adopted Medicaid expansion within the same year (i.e. all states that adopted epxansion in 2016) count for the same cohort. Plot the treatment effects for these time cohorts.
 
 ```{r}
@@ -500,8 +530,19 @@ mpool_msyn_tc_summ <- summary(mpool_msyn_tc)
 mpool_msyn_tc_summ
 
 ```
-
-
+```{r}
+mpool_msyn_tc_summ$att %>%
+  ggplot(aes(x = time, y = Estimate, color = Level)) +
+  geom_point() +
+  geom_line() +
+  geom_vline(xintercept = 0) +
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text(),
+        legend.position = "bottom") +
+  ggtitle('Synthetic Controls for Medicaid Expansion') +
+  xlab('Time') +
+  ylab('Uninsured Rate')
+```
 
 #Now let's plot the Time Cohorts
 
@@ -524,9 +565,15 @@ mpool_msyn_tc_summ$att %>%
 
 - One feature of Medicaid is that it is jointly administered by the federal government and the states, and states have some flexibility in how they implement Medicaid. For example, during the Trump administration, several states applied for waivers where they could add work requirements to the eligibility standards (i.e. an individual needed to work for 80 hours/month to qualify for Medicaid). Given these differences, do you see evidence for the idea that different states had different treatment effect sizes?
 - **Answer**: 
+Yes, if we look at the example with the time cohorts model, for example, we can see that states that adopted medicaid expansion in 2014 vs. those in 2019 had different effect sizes. The effect of medicaid expansion on these states was quite different looking at the reducation in the rate of uninsured people. 
+
 
 - Do you see evidence for the idea that early adopters of Medicaid expansion enjoyed a larger decrease in the uninsured population?
 - **Answer**: 
+
+
+There does some to be some evidence, albeit limited, that those who adopted early enjoyed a larger decreased in the uninsured population. For example, looking at the time cohorts, we can see that earlier adopters of medicaid expansion had an uninsured rate say those who adopted in 2015 or 2016 enjoyed decreases in uninsured rate enough to make their rates of uninsured folks be negative. I am not sure how to  interpret the negative rate in the context of the uninsured population but in general it seems like states that adotped much later had positive rates of uninsured and the trend says relatively consistent until adoption. 
+
 
 # General Discussion Questions
 
